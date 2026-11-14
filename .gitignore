@@ -1,0 +1,22 @@
+# Dependencias
+node_modules/
+
+# Archivos de entorno y credenciales
+.env
+.env.*
+!.env.example
+
+# Archivos generados
+dist/
+coverage/
+.angular/
+backend/src/generated/
+
+# Registros
+*.log
+
+# Archivos del sistema y editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
