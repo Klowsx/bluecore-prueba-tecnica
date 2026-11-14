@@ -9,8 +9,10 @@ test('registra, autentica y rechaza duplicados o credenciales incorrectas', asyn
   process.env.DATABASE_URL = databaseUrl;
   const authService = await import('../src/auth/auth.service.js');
   const { prisma } = await import('../src/prisma.js');
+  const creditApplicationService =
+    await import('../src/credit-applications/credit-application.service.js');
 
-  const app = buildApp({ authService, jwtSecret: 'clave-para-pruebas' });
+  const app = buildApp({ authService, creditApplicationService, jwtSecret: 'clave-para-pruebas' });
   const email = `Ana-${randomUUID().replaceAll('-', '')}@example.com`;
   const password = '😀'.repeat(128);
   t.after(async () => {

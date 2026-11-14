@@ -3,15 +3,22 @@ import jwt from '@fastify/jwt';
 import rateLimit from '@fastify/rate-limit';
 import { authRoutes, type AuthRoutesOptions } from './auth/auth.routes.js';
 import { registerErrorHandlers } from './errors.js';
+import {
+  creditApplicationRoutes,
+  type CreditApplicationRoutesOptions,
+} from './credit-applications/credit-application.routes.js';
 
 export function buildApp({
   authService,
   jwtSecret,
+  creditApplicationService,
   logger = false,
-}: AuthRoutesOptions & { jwtSecret: string; logger?: boolean }) {
+}: AuthRoutesOptions & CreditApplicationRoutesOptions & { jwtSecret: string; logger?: boolean }) {
   const app = Fastify({
     logger,
-    ajv: { customOptions: { coerceTypes: false, removeAdditional: false } },
+    ajv: {
+      customOptions: { coerceTypes: false, removeAdditional: false, multipleOfPrecision: 8 },
+    },
   });
 
   registerErrorHandlers(app);
@@ -21,6 +28,11 @@ export function buildApp({
   app.register(rateLimit, { global: false });
 
   app.register(authRoutes, { prefix: '/auth', authService });
+
+  app.register(creditApplicationRoutes, {
+    prefix: '/credit-applications',
+    creditApplicationService,
+  });
 
   app.get('/health', async () => ({ status: 'ok' }));
   return app;
