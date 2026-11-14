@@ -26,6 +26,14 @@ export function registerErrorHandlers(app: FastifyInstance): void {
       error.statusCode >= 400 &&
       error.statusCode < 500
     ) {
+      if (error.statusCode === 429) {
+        return reply.status(429).send({
+          error: {
+            code: "RATE_LIMITED",
+            message: "Demasiados intentos. Inténtalo de nuevo más tarde.",
+          },
+        });
+      }
       return reply.status(error.statusCode).send({
         error: {
           code: "INVALID_REQUEST",

@@ -1,11 +1,8 @@
-import Fastify from "fastify";
-import { registerErrorHandlers } from "./errors.js";
+import { buildApp } from "./app.js";
 import { prisma } from "./prisma.js";
+import * as authService from "./auth/auth.service.js";
 
-const app = Fastify({ logger: true });
-registerErrorHandlers(app);
-
-app.get("/health", async () => ({ status: "ok" }));
+const app = buildApp({ authService, logger: true });
 
 app.addHook("onClose", async () => {
   await prisma.$disconnect();
