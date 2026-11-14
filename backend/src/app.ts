@@ -1,7 +1,7 @@
-import Fastify from "fastify";
-import rateLimit from "@fastify/rate-limit";
-import { authRoutes, type AuthRoutesOptions } from "./auth/auth.routes.js";
-import { registerErrorHandlers } from "./errors.js";
+import Fastify from 'fastify';
+import rateLimit from '@fastify/rate-limit';
+import { authRoutes, type AuthRoutesOptions } from './auth/auth.routes.js';
+import { registerErrorHandlers } from './errors.js';
 
 export function buildApp({
   authService,
@@ -16,8 +16,8 @@ export function buildApp({
 
   app.register(rateLimit, { global: false });
 
-  app.register(authRoutes, { prefix: "/auth", authService });
+  app.register(authRoutes, { prefix: '/auth', authService });
 
-  app.get("/health", async () => ({ status: "ok" }));
+  app.get('/health', async () => ({ status: 'ok' }));
   return app;
 }

@@ -1,14 +1,14 @@
-import { buildApp } from "./app.js";
-import { prisma } from "./prisma.js";
-import * as authService from "./auth/auth.service.js";
+import { buildApp } from './app.js';
+import { prisma } from './prisma.js';
+import * as authService from './auth/auth.service.js';
 
 const app = buildApp({ authService, logger: true });
 
-app.addHook("onClose", async () => {
+app.addHook('onClose', async () => {
   await prisma.$disconnect();
 });
 
-for (const signal of ["SIGINT", "SIGTERM"] as const) {
+for (const signal of ['SIGINT', 'SIGTERM'] as const) {
   process.once(signal, () => {
     void app
       .close()
@@ -22,7 +22,7 @@ for (const signal of ["SIGINT", "SIGTERM"] as const) {
 
 try {
   await prisma.$connect();
-  await app.listen({ port: 3000, host: "0.0.0.0" });
+  await app.listen({ port: 3000, host: '0.0.0.0' });
 } catch (error) {
   app.log.error(error);
   await prisma.$disconnect();
