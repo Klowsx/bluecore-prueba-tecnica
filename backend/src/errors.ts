@@ -1,4 +1,4 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance } from 'fastify';
 
 export class AppError extends Error {
   constructor(
@@ -7,7 +7,7 @@ export class AppError extends Error {
     message: string,
   ) {
     super(message);
-    this.name = "AppError";
+    this.name = 'AppError';
   }
 }
 
@@ -21,39 +21,36 @@ export function registerErrorHandlers(app: FastifyInstance): void {
 
     if (
       error instanceof Error &&
-      "statusCode" in error &&
-      typeof error.statusCode === "number" &&
+      'statusCode' in error &&
+      typeof error.statusCode === 'number' &&
       error.statusCode >= 400 &&
       error.statusCode < 500
     ) {
       if (error.statusCode === 429) {
         return reply.status(429).send({
           error: {
-            code: "RATE_LIMITED",
-            message: "Demasiados intentos. Inténtalo de nuevo más tarde.",
+            code: 'RATE_LIMITED',
+            message: 'Demasiados intentos. Inténtalo de nuevo más tarde.',
           },
         });
       }
       return reply.status(error.statusCode).send({
         error: {
-          code: "INVALID_REQUEST",
-          message: "La solicitud no es válida.",
+          code: 'INVALID_REQUEST',
+          message: 'La solicitud no es válida.',
         },
       });
     }
 
-    request.log.error(
-      { err: error },
-      "Error inesperado al procesar la solicitud",
-    );
+    request.log.error({ err: error }, 'Error inesperado al procesar la solicitud');
     return reply.status(500).send({
-      error: { code: "INTERNAL_ERROR", message: "Ocurrió un error interno." },
+      error: { code: 'INTERNAL_ERROR', message: 'Ocurrió un error interno.' },
     });
   });
 
   app.setNotFoundHandler((_request, reply) => {
     return reply.status(404).send({
-      error: { code: "NOT_FOUND", message: "La ruta solicitada no existe." },
+      error: { code: 'NOT_FOUND', message: 'La ruta solicitada no existe.' },
     });
   });
 }
