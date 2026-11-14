@@ -10,15 +10,20 @@ export async function authRoutes(
   app: FastifyInstance,
   { authService }: AuthRoutesOptions,
 ): Promise<void> {
-  app.post<{ Body: Credentials }>(
-    '/register',
-    {
-      schema: credentialsSchema,
-      config: { rateLimit: { max: 5, timeWindow: '1 minute' } },
-    },
-    async (request, reply) => {
-      const user = await authService.registerUser(request.body.email, request.body.password);
-      return reply.status(201).send(user);
-    },
-  );
+  const options = {
+    schema: credentialsSchema,
+    config: { rateLimit: { max: 5, timeWindow: '1 minute' } },
+  };
+
+  app.post<{ Body: Credentials }>('/register', options, async (request, reply) => {
+    const user = await authService.registerUser(request.body.email, request.body.password);
+    return reply.status(201).send(user);
+  });
+
+  app.post<{ Body: Credentials }>('/login', options, async (request, reply) => {
+    const { email, password } = request.body;
+    const userId = await authService.loginUser(email, password);
+    const accessToken = await reply.jwtSign({ sub: userId });
+    return reply.header('Cache-Control', 'no-store').send({ accessToken });
+  });
 }

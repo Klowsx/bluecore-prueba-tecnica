@@ -4,18 +4,17 @@
 
 Requisitos: Docker Desktop (con el motor iniciado) y Docker Compose.
 
-Desde la raíz del proyecto ejecuta:
+1. Desde la raíz, copia `.env.example` a `.env`. Este es el único archivo de entorno que necesitas. Docker Compose pasa la configuración al backend y a PostgreSQL.
+2. Completa las variables de `.env`. Para `JWT_SECRET`, usa una clave de al menos 32 bytes aleatorios.
+3. Valida la configuración y arranca los servicios.
 
 ```bash
+docker compose config --quiet
 docker compose up --build
 ```
 
 - Frontend: http://localhost:4200
 - Estado del backend: http://localhost:3000/health
 - PostgreSQL: localhost:5432
-
-Compose utiliza credenciales de ejemplo para desarrollo local. Para cambiarlas, crea un archivo `.env` en la raíz con `POSTGRES_USER`, `POSTGRES_PASSWORD` y `POSTGRES_DB` antes de iniciar los contenedores.
-
-No es necesario crear un archivo `.env` para iniciar con los valores de ejemplo. Al iniciar, el backend aplica las migraciones existentes con `prisma migrate deploy`, genera el cliente de Prisma y se conecta a PostgreSQL antes de arrancar el servidor.
 
 Para detener los servicios, pulsa Ctrl+C y ejecuta `docker compose down`. Los datos de PostgreSQL se conservan en un volumen. `docker compose down -v` también elimina ese volumen y sus datos.
