@@ -4,8 +4,10 @@ import { AppError } from '../errors.js';
 import {
   createCreditApplicationSchema,
   listCreditApplicationsSchema,
+  updateCreditApplicationStatusSchema,
   type CreateCreditApplication,
   type ListCreditApplicationsQuery,
+  type UpdateCreditApplicationStatus,
 } from './credit-application.schema.js';
 import type * as creditApplicationService from './credit-application.service.js';
 
@@ -17,6 +19,24 @@ export async function creditApplicationRoutes(
   app: FastifyInstance,
   { creditApplicationService }: CreditApplicationRoutesOptions,
 ): Promise<void> {
+  app.patch<{ Params: { id: string }; Body: UpdateCreditApplicationStatus }>(
+    '/:id/status',
+    { onRequest: requireAuth, schema: updateCreditApplicationStatusSchema, attachValidation: true },
+    async (request) => {
+      if (request.validationError) {
+        throw new AppError(
+          400,
+          'INVALID_REQUEST',
+          'Envía el estado APPROVED o REJECTED y un comentario con el motivo.',
+        );
+      }
+      return creditApplicationService.updateCreditApplicationStatus(
+        request.params.id,
+        request.body,
+      );
+    },
+  );
+
   app.get<{ Querystring: ListCreditApplicationsQuery }>(
     '/',
     { onRequest: requireAuth, schema: listCreditApplicationsSchema, attachValidation: true },
