@@ -15,7 +15,7 @@ describe('App', () => {
     }).compileComponents();
   });
 
-  it('muestra la confirmación después de un login exitoso', async () => {
+  it('carga las solicitudes con el token después de un login exitoso', async () => {
     const fixture = TestBed.createComponent(App);
     const router = TestBed.inject(Router);
     const http = TestBed.inject(HttpTestingController);
@@ -47,7 +47,35 @@ describe('App', () => {
     http.expectOne('/auth/login').flush({ accessToken: 'token-de-prueba' });
     await fixture.whenStable();
     expect(router.url).toBe('/');
-    expect(page.querySelector('main')?.textContent).toContain('Sesión iniciada.');
+    const list = http.expectOne('/credit-applications');
+    expect(list.request.headers.get('Authorization')).toBe('Bearer token-de-prueba');
+    list.flush([]);
+    fixture.detectChanges();
+    expect(page.querySelector('tbody td[colspan="5"]')?.textContent).toContain(
+      'Todavía no hay solicitudes.',
+    );
+    const select = page.querySelector('select')!;
+    select.value = 'APPROVED';
+    select.dispatchEvent(new Event('change'));
+    http
+      .expectOne('/credit-applications?status=APPROVED')
+      .flush([
+        { id: '1', idNumber: '8-123-456', amount: '500', paymentTermMonths: 6, status: 'APPROVED' },
+      ]);
+    fixture.detectChanges();
+    expect(page.querySelector('tbody')?.textContent).toContain('Aprobada');
+    expect(select.selectedOptions[0].textContent.trim()).toBe('Aprobadas');
+    const search = page.querySelector<HTMLInputElement>('input[type="search"]')!;
+    for (const [query, expected] of [
+      ['999', 'No hay solicitudes que coincidan'],
+      ['123', '8-123-456'],
+    ]) {
+      search.value = query;
+      search.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      expect(page.querySelectorAll('thead th')).toHaveLength(5);
+      expect(page.querySelector('tbody')?.textContent).toContain(expected);
+    }
     expect(sessionStorage.getItem('accessToken')).toBe('token-de-prueba');
     http.verify();
   });
