@@ -1,12 +1,13 @@
 import { buildApp } from './app.js';
 import { prisma } from './prisma.js';
 import * as authService from './auth/auth.service.js';
+import * as creditApplicationService from './credit-applications/credit-application.service.js';
 
 // Se obtiene el secret para iniciar el servidor y si no está configurado se lanza un error
 const jwtSecret = process.env.JWT_SECRET;
 if (!jwtSecret?.trim()) throw new Error('JWT_SECRET no está configurada');
 
-const app = buildApp({ authService, jwtSecret, logger: true });
+const app = buildApp({ authService, creditApplicationService, jwtSecret, logger: true });
 
 // Hook para desconectar de la base de datos cuando el servidor se cierra
 app.addHook('onClose', async () => {
