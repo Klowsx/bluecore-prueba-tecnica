@@ -94,3 +94,51 @@ test('crea una solicitud autenticada, valida los datos y persiste el estado PEND
   }
   assert.equal(await prisma.creditApplication.count({ where: { idNumber } }), 3);
 });
+
+test('lista solicitudes y permite filtrar por estado con un JWT válido', async (t) => {
+  assert.ok(process.env.TEST_DATABASE_URL, 'Configura TEST_DATABASE_URL con una base migrada.');
+  process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
+  const authService = await import('../src/auth/auth.service.js');
+  const creditApplicationService =
+    await import('../src/credit-applications/credit-application.service.js');
+  const { prisma } = await import('../src/prisma.js');
+  const app = buildApp({ authService, creditApplicationService, jwtSecret: 'clave-para-pruebas' });
+  const idNumber = randomUUID();
+  t.after(async () => {
+    try {
+      await prisma.creditApplication.deleteMany({ where: { idNumber } });
+    } finally {
+      await app.close();
+      await prisma.$disconnect();
+    }
+  });
+  await app.ready();
+  const url = '/credit-applications';
+  const headers = { authorization: `Bearer ${app.jwt.sign({ sub: 'usuario-prueba' })}` };
+  assert.equal((await app.inject({ url })).statusCode, 401);
+  const invalid = await app.inject({ url: url + '?status=OTRO', headers });
+  assert.equal(invalid.statusCode, 400);
+  assert.equal(invalid.json().error.code, 'INVALID_REQUEST');
+
+  const statuses = ['PENDING', 'APPROVED', 'REJECTED'] as const;
+  for (const status of statuses) {
+    const filteredUrl = url + '?status=' + status;
+    const before = await app.inject({ url: filteredUrl, headers });
+    assert.equal(before.statusCode, 200);
+    const existing = await prisma.creditApplication.count({ where: { status } });
+    assert.equal(before.json().length, existing);
+
+    const created = await prisma.creditApplication.create({
+      data: { idNumber, amount: 1000, paymentTermMonths: 12, status },
+    });
+    const filtered = await app.inject({ url: filteredUrl, headers });
+    assert.equal(filtered.statusCode, 200);
+    const rows = filtered.json<{ id: string; status: string }[]>();
+    assert.ok(rows.some((row) => row.id === created.id));
+    assert.ok(rows.every((row) => row.status === status));
+  }
+  const all = await app.inject({ url, headers });
+  assert.equal(all.statusCode, 200);
+  const rows = all.json<{ idNumber: string }[]>();
+  assert.equal(rows.filter((row) => row.idNumber === idNumber).length, statuses.length);
+});
