@@ -1,0 +1,88 @@
+<dialog
+  #dialog
+  aria-labelledby="decision-title"
+  aria-describedby="decision-applicant"
+  (cancel)="saving() && $event.preventDefault()"
+>
+  <header>
+    <h2 id="decision-title">Gestionar solicitud</h2>
+    <button
+      class="close"
+      type="button"
+      aria-label="Cerrar"
+      (click)="dialog.close()"
+      [disabled]="saving()"
+    >
+      ×
+    </button>
+    <p id="decision-applicant">
+      Cédula del solicitante: <strong>{{ application()?.idNumber }}</strong>
+    </p>
+  </header>
+  <dl class="summary">
+    <div>
+      <dt>Monto</dt>
+      <dd>{{ application()?.amount | currency: 'USD' : 'symbol-narrow' }}</dd>
+    </div>
+    <div>
+      <dt>Plazo</dt>
+      <dd>{{ application()?.paymentTermMonths }} meses</dd>
+    </div>
+  </dl>
+  <form (submit)="$event.preventDefault(); submit()">
+    <fieldset [disabled]="saving()">
+      <legend>Decisión sobre la solicitud</legend>
+      <div class="choices">
+        <label
+          ><input type="radio" name="decision" value="APPROVED" [formControl]="status" /><span
+            ><b aria-hidden="true">✓</b> Aprobar</span
+          ></label
+        >
+        <label
+          ><input type="radio" name="decision" value="REJECTED" [formControl]="status" /><span
+            ><b aria-hidden="true">×</b> Rechazar</span
+          ></label
+        >
+      </div>
+    </fieldset>
+    <div class="field">
+      <div class="field-heading">
+        <label for="decision-comment"
+          >Motivo de la decisión <span class="required" aria-hidden="true">*</span></label
+        ><small>{{ comment.value.length }} caracteres</small>
+      </div>
+      <textarea
+        id="decision-comment"
+        rows="4"
+        required
+        [formControl]="comment"
+        [readOnly]="saving()"
+        placeholder="Ingresa el motivo de tu decisión…"
+        aria-describedby="comment-hint"
+        [attr.aria-invalid]="comment.touched && comment.invalid"
+      ></textarea>
+      <small id="comment-hint" [class.invalid]="comment.touched && comment.invalid">{{
+        comment.touched && comment.invalid
+          ? 'Escribe un comentario para confirmar la decisión.'
+          : 'El motivo se guardará junto con el estado de la solicitud.'
+      }}</small>
+    </div>
+    @if (error()) {
+      <p role="alert">{{ error() }}</p>
+    }
+    <footer>
+      <button type="button" (click)="dialog.close()" [disabled]="saving()">Cancelar</button>
+      <button type="submit" [disabled]="saving() || !status.value">
+        {{
+          saving()
+            ? 'Guardando…'
+            : status.value === 'REJECTED'
+              ? 'Rechazar solicitud'
+              : status.value === 'APPROVED'
+                ? 'Aprobar solicitud'
+                : 'Confirmar decisión'
+        }}
+      </button>
+    </footer>
+  </form>
+</dialog>

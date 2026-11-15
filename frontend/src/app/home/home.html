@@ -9,6 +9,7 @@
     </button>
   </div>
   <app-create-application #createForm (created)="applicationCreated($event)" />
+  <app-application-decision #decision (updated)="applicationUpdated($event)" />
   @if (confirmation()) {
     <p role="status">{{ confirmation() }}</p>
   }
@@ -65,7 +66,7 @@
                 <th class="amount">Monto</th>
                 <th>Plazo</th>
                 <th>Estado</th>
-                <th class="last">Acciones</th>
+                <th class="last">Accion</th>
               </tr>
             </thead>
             <tbody>
@@ -81,10 +82,9 @@
                   </td>
                   <td class="last">
                     @if (item.status === 'PENDING') {
-                      <div class="actions">
-                        <button type="button" disabled>Aprobar</button
-                        ><button type="button" disabled>Rechazar</button>
-                      </div>
+                      <button class="manage" type="button" (click)="decision.open(item)">
+                        Gestionar
+                      </button>
                     } @else {
                       <span class="dash" aria-label="Sin acciones">—</span>
                     }
