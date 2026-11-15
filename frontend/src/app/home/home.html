@@ -4,10 +4,14 @@
 <main class="shell">
   <div class="heading">
     <h1>Solicitudes de crédito</h1>
-    <button type="button" class="create" disabled>
+    <button type="button" class="create" (click)="confirmation.set(''); createForm.open()">
       <span aria-hidden="true">+</span> Nueva solicitud
     </button>
   </div>
+  <app-create-application #createForm (created)="applicationCreated($event)" />
+  @if (confirmation()) {
+    <p role="status">{{ confirmation() }}</p>
+  }
   <section class="panel" aria-label="Listado de solicitudes">
     <div class="filters" role="search" aria-label="Filtrar solicitudes">
       <div class="search-field">
@@ -26,6 +30,7 @@
         </svg>
         <input
           #searchBox
+          [value]="search.value"
           type="search"
           aria-label="Buscar por cédula"
           placeholder="Buscar por cédula"
@@ -34,7 +39,7 @@
       </div>
       <label class="status-field">
         <span>Estado:</span>
-        <select #statusBox (change)="selectStatus(statusBox.value)">
+        <select #statusBox [value]="filter.value ?? ''" (change)="selectStatus(statusBox.value)">
           @for (option of filters; track option.label) {
             <option [value]="option.value ?? ''">{{ option.label }}</option>
           }

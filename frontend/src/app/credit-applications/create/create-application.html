@@ -1,0 +1,105 @@
+<dialog
+  #dialog
+  aria-labelledby="create-title"
+  aria-describedby="create-description"
+  (cancel)="saving() && $event.preventDefault()"
+>
+  <header>
+    <h2 id="create-title">Nueva solicitud de crédito</h2>
+    <button
+      class="close"
+      type="button"
+      aria-label="Cerrar"
+      (click)="dialog.close()"
+      [disabled]="saving()"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+    </button>
+    <p id="create-description">Ingresa los datos para registrar la solicitud.</p>
+  </header>
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="field">
+      <label for="id-number">Cédula del solicitante</label>
+      <div class="control">
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <rect x="2.5" y="6" width="19" height="14" rx="2" />
+          <path d="M9 6V4h6v2M14 11h4m-4 4h4" />
+          <circle cx="8" cy="11" r="1.7" />
+          <path d="M5 16c.4-2.8 5.6-2.8 6 0" />
+        </svg>
+        <input
+          autofocus
+          id="id-number"
+          formControlName="idNumber"
+          placeholder="Ej. 1723456789"
+          required
+          aria-describedby="id-hint"
+        />
+      </div>
+      <small id="id-hint" class="invalid">
+        @if (form.controls.idNumber.touched && form.controls.idNumber.invalid) {
+          Ingresa la cédula del solicitante.
+        }
+      </small>
+    </div>
+    <div class="field">
+      <label for="amount">Monto del crédito</label>
+      <div class="control">
+        <span class="currency" aria-hidden="true">$</span>
+        <input
+          id="amount"
+          type="number"
+          formControlName="amount"
+          min="500"
+          max="50000"
+          step="0.01"
+          placeholder="0.00"
+          required
+          aria-describedby="amount-hint"
+        />
+      </div>
+      <small
+        id="amount-hint"
+        [class.invalid]="form.controls.amount.touched && form.controls.amount.invalid"
+        >Entre $500 y $50,000, con hasta dos decimales.</small
+      >
+    </div>
+    <div class="field">
+      <label for="months">Plazo (meses)</label>
+      <div class="control">
+        <svg aria-hidden="true" viewBox="0 0 24 24">
+          <rect x="3" y="5" width="18" height="16" rx="2" />
+          <path d="M7 3v4m10-4v4M3 10h18" />
+        </svg>
+        <input
+          id="months"
+          type="number"
+          formControlName="paymentTermMonths"
+          min="6"
+          max="60"
+          step="1"
+          placeholder="12"
+          required
+          aria-describedby="term-hint"
+        />
+        <span class="unit" aria-hidden="true">meses</span>
+      </div>
+      <small
+        id="term-hint"
+        [class.invalid]="
+          form.controls.paymentTermMonths.touched && form.controls.paymentTermMonths.invalid
+        "
+        >Entre 6 y 60 meses completos.</small
+      >
+    </div>
+    @if (error()) {
+      <p role="alert">{{ error() }}</p>
+    }
+    <footer>
+      <button type="button" (click)="dialog.close()" [disabled]="saving()">Cancelar</button>
+      <button type="submit" [disabled]="saving()">
+        {{ saving() ? 'Guardando…' : 'Crear solicitud' }}
+      </button>
+    </footer>
+  </form>
+</dialog>

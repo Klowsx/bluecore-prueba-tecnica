@@ -1,5 +1,6 @@
 import { AsyncPipe, CurrencyPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { CreateApplication } from '../credit-applications/create/create-application';
 import { Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, catchError, map, of, startWith, switchMap } from 'rxjs';
 import {
@@ -9,7 +10,7 @@ import {
 
 @Component({
   selector: 'app-home',
-  imports: [AsyncPipe, CurrencyPipe],
+  imports: [AsyncPipe, CurrencyPipe, CreateApplication],
   templateUrl: './home.html',
   styleUrls: ['./home.css', './home-filters.css'],
 })
@@ -18,6 +19,7 @@ export class Home {
   private readonly router = inject(Router);
   protected readonly filter = new BehaviorSubject<ApplicationStatus | undefined>(undefined);
   protected readonly search = new BehaviorSubject('');
+  protected readonly confirmation = signal('');
   protected readonly filters = [
     { label: 'Todas', value: undefined },
     { label: 'Pendientes', value: 'PENDING' },
@@ -62,5 +64,11 @@ export class Home {
 
   protected selectStatus(value: string) {
     this.filter.next(this.filters.find((option) => option.value === value)?.value);
+  }
+
+  protected applicationCreated(idNumber: string) {
+    this.search.next('');
+    this.filter.next(undefined);
+    this.confirmation.set(`Solicitud creada para la cédula ${idNumber}.`);
   }
 }

@@ -63,13 +63,14 @@ button:disabled {
   background: #fafbfc;
   cursor: not-allowed;
 }
-.create:disabled {
+.create {
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  background: #e5ebf7;
-  color: #495e86;
-  border-color: #d2ddf0;
+  background: #204ccc;
+  color: white;
+  border-color: #204ccc;
+  cursor: pointer;
   font-weight: 600;
   min-height: 2.75rem;
 }
