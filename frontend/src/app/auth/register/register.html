@@ -58,9 +58,7 @@
             </button>
           </div>
           @if (form.controls.password.touched && form.controls.password.invalid) {
-            <small id="password-help" role="alert"
-              >Escribe una contraseña de entre 5 y 128 caracteres.</small
-            >
+            <small id="password-help" role="alert">Usa entre 5 y 128 caracteres.</small>
           } @else {
             <small id="password-help">Entre 5 y 128 caracteres.</small>
           }

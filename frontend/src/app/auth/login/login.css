@@ -1,0 +1,25 @@
+@import '../register/register.css';
+
+.visibility {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+}
+
+.visibility:hover {
+  color: var(--muted);
+  background: transparent;
+}
+
+.password-control input {
+  padding-inline-end: 3.25rem;
+}
+
+.auth-link {
+  margin: 1.25rem 0 0;
+  text-align: center;
+  font-size: 0.875rem;
+}
+a {
+  color: var(--blue);
+}
