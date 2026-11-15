@@ -4,7 +4,9 @@ import { AuthService } from '../auth/auth';
 
 export type ApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
-type CreditApplication = {
+export type DecisionStatus = Exclude<ApplicationStatus, 'PENDING'>;
+
+export type CreditApplication = {
   id: string;
   idNumber: string;
   amount: string;
@@ -32,5 +34,13 @@ export class CreditApplicationsService {
       headers: this.headers,
       params: status ? { status } : {},
     });
+  }
+
+  updateStatus(id: string, status: DecisionStatus, comment: string) {
+    return this.http.patch<CreditApplication>(
+      `/credit-applications/${encodeURIComponent(id)}/status`,
+      { status, comment },
+      { headers: this.headers },
+    );
   }
 }

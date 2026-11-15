@@ -1,16 +1,18 @@
 import { AsyncPipe, CurrencyPipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { CreateApplication } from '../credit-applications/create/create-application';
+import { ApplicationDecision } from '../credit-applications/decision/application-decision';
 import { Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, catchError, map, of, startWith, switchMap } from 'rxjs';
 import {
   ApplicationStatus,
+  type CreditApplication,
   CreditApplicationsService,
 } from '../credit-applications/credit-applications';
 
 @Component({
   selector: 'app-home',
-  imports: [AsyncPipe, CurrencyPipe, CreateApplication],
+  imports: [AsyncPipe, CurrencyPipe, CreateApplication, ApplicationDecision],
   templateUrl: './home.html',
   styleUrls: ['./home.css', './home-filters.css'],
 })
@@ -70,5 +72,12 @@ export class Home {
     this.search.next('');
     this.filter.next(undefined);
     this.confirmation.set(`Solicitud creada para la cédula ${idNumber}.`);
+  }
+
+  protected applicationUpdated(application: CreditApplication) {
+    this.filter.next(this.filter.value);
+    this.confirmation.set(
+      `Solicitud ${this.labels[application.status].toLowerCase()} para la cédula ${application.idNumber}.`,
+    );
   }
 }

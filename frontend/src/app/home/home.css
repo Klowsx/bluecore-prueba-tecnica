@@ -156,12 +156,9 @@ td small {
   background: #fde9e7;
   color: #934037;
 }
-.actions {
-  display: flex;
-  justify-content: center;
-  gap: 0.45rem;
-}
-.actions button {
+.manage {
+  cursor: pointer;
+  color: inherit;
   padding: 0.35rem 0.65rem;
   font-size: 0.8125rem;
   background: white;
