@@ -17,9 +17,19 @@ export class CreditApplicationsService {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
 
+  private get headers() {
+    return { Authorization: `Bearer ${this.auth.accessToken}` };
+  }
+
+  create(data: { idNumber: string; amount: number; paymentTermMonths: number }) {
+    return this.http.post<CreditApplication>('/credit-applications', data, {
+      headers: this.headers,
+    });
+  }
+
   list(status?: ApplicationStatus) {
     return this.http.get<CreditApplication[]>('/credit-applications', {
-      headers: { Authorization: `Bearer ${this.auth.accessToken}` },
+      headers: this.headers,
       params: status ? { status } : {},
     });
   }
