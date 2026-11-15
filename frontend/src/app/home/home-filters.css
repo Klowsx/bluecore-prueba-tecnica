@@ -1,0 +1,117 @@
+.filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-bottom: 0.85rem;
+}
+.search-field {
+  position: relative;
+  flex: 0 1 15rem;
+  min-width: 0;
+}
+.search-field svg {
+  position: absolute;
+  top: 50%;
+  left: 0.8rem;
+  transform: translateY(-50%);
+  color: #637286;
+  pointer-events: none;
+}
+.filters input,
+.filters select {
+  box-sizing: border-box;
+  min-height: 2.375rem;
+  border: 1px solid #dedfdf;
+  border-radius: var(--radius-control);
+  box-shadow: 0 1px 3px rgb(30 37 33 / 5%);
+  font: inherit;
+  font-size: 0.875rem;
+  color: #243448;
+}
+.filters input {
+  width: 100%;
+  padding: 0.5rem 0.8rem 0.5rem 2.55rem;
+  background: white;
+}
+.filters input::placeholder {
+  color: #526377;
+}
+.status-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.status-field span {
+  position: absolute;
+  left: 0.75rem;
+  font-size: 0.875rem;
+  color: #525957;
+  pointer-events: none;
+}
+.filters select {
+  width: 10.75rem;
+  padding: 0.45rem 0.75rem 0.45rem 4rem;
+  background: white;
+  cursor: pointer;
+}
+.filters :is(input, select):focus-visible {
+  outline: 2px solid #204ccc;
+  outline-offset: 2px;
+}
+@supports (appearance: base-select) {
+  .filters select,
+  .filters select::picker(select) {
+    appearance: base-select;
+  }
+  .filters select::picker-icon {
+    content: '';
+    width: 0.45rem;
+    height: 0.45rem;
+    align-self: center;
+    margin-inline-end: 0.2rem;
+    border: solid #526377;
+    border-width: 0 1.5px 1.5px 0;
+    rotate: 45deg;
+  }
+  .filters select:open::picker-icon {
+    rotate: 225deg;
+  }
+  .filters select::picker(select) {
+    margin-block-start: 0.35rem;
+    padding: 0.25rem;
+    border: 1px solid #cbd3dd;
+    border-radius: var(--radius-control);
+    box-shadow: 0 6px 20px rgb(28 49 75 / 12%);
+    background: white;
+  }
+  .filters option {
+    min-height: 2.5rem;
+    padding-inline: 0.65rem;
+    border-radius: var(--radius-control);
+    font-weight: 400;
+  }
+  .filters option:checked {
+    background: #eaf0fe;
+    color: #204ccc;
+    font-weight: 600;
+  }
+  .filters option:focus-visible {
+    outline: 2px solid #204ccc;
+    outline-offset: -2px;
+  }
+}
+@media (max-width: 32rem) {
+  .search-field {
+    max-width: none;
+    flex-basis: 100%;
+  }
+  .status-field {
+    margin-left: auto;
+  }
+  .filters input,
+  .filters select {
+    min-height: 2.75rem;
+  }
+}

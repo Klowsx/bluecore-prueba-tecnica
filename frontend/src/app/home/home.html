@@ -1,0 +1,109 @@
+<header class="masthead">
+  <div class="shell"><span class="brand">Bluecore</span></div>
+</header>
+<main class="shell">
+  <div class="heading">
+    <h1>Solicitudes de crédito</h1>
+    <button type="button" class="create" disabled>
+      <span aria-hidden="true">+</span> Nueva solicitud
+    </button>
+  </div>
+  <section class="panel" aria-label="Listado de solicitudes">
+    <div class="filters" role="search" aria-label="Filtrar solicitudes">
+      <div class="search-field">
+        <svg
+          aria-hidden="true"
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linecap="round"
+        >
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="m16 16 4.5 4.5" />
+        </svg>
+        <input
+          #searchBox
+          type="search"
+          aria-label="Buscar por cédula"
+          placeholder="Buscar por cédula"
+          (input)="search.next(searchBox.value)"
+        />
+      </div>
+      <label class="status-field">
+        <span>Estado:</span>
+        <select #statusBox (change)="selectStatus(statusBox.value)">
+          @for (option of filters; track option.label) {
+            <option [value]="option.value ?? ''">{{ option.label }}</option>
+          }
+        </select>
+      </label>
+    </div>
+    @if (view | async; as result) {
+      @switch (result.state) {
+        @case ('loading') {
+          <p class="message" role="status">Cargando solicitudes…</p>
+        }
+        @case ('error') {
+          <div class="message">
+            <p role="alert">{{ result.message }}</p>
+            <button type="button" (click)="filter.next(filter.value)">Reintentar</button>
+          </div>
+        }
+        @case ('ready') {
+          <table aria-label="Solicitudes de crédito" [class.empty]="!result.applications.length">
+            <thead>
+              <tr>
+                <th>Cédula</th>
+                <th class="amount">Monto</th>
+                <th>Plazo</th>
+                <th>Estado</th>
+                <th class="last">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of result.applications; track item.id) {
+                <tr>
+                  <td class="identity"><small>Cédula</small>{{ item.idNumber }}</td>
+                  <td class="amount"><small>Monto</small>{{ item.amount | currency: 'USD' }}</td>
+                  <td class="term"><small>Plazo</small>{{ item.paymentTermMonths }} meses</td>
+                  <td class="state">
+                    <span class="badge" [attr.data-status]="item.status">{{
+                      labels[item.status]
+                    }}</span>
+                  </td>
+                  <td class="last">
+                    @if (item.status === 'PENDING') {
+                      <div class="actions">
+                        <button type="button" disabled>Aprobar</button
+                        ><button type="button" disabled>Rechazar</button>
+                      </div>
+                    } @else {
+                      <span class="dash" aria-label="Sin acciones">—</span>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="empty-cell">
+                    <span role="status">
+                      {{
+                        search.value.trim()
+                          ? 'No hay solicitudes que coincidan con la búsqueda.'
+                          : filter.value
+                            ? 'No hay solicitudes con este estado.'
+                            : 'Todavía no hay solicitudes.'
+                      }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      }
+    }
+  </section>
+</main>
