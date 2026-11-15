@@ -28,6 +28,8 @@ services:
 
   frontend:
     build: ./frontend
+    environment:
+      BACKEND_URL: http://backend:3000
     ports:
       - '4200:4200'
 
