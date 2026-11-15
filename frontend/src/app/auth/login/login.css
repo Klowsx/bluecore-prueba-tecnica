@@ -15,21 +15,6 @@
   padding-inline-end: 3.25rem;
 }
 
-/* Reserva la tercera fila del campo para el mensaje de validación. */
-.field {
-  grid-template-rows: auto auto minmax(1.25rem, auto);
-}
-
-form {
-  gap: 0.5rem;
-}
-
-@media (max-width: 24rem) {
-  .field:first-child {
-    grid-template-rows: auto auto minmax(2.5rem, auto);
-  }
-}
-
 .auth-link {
   margin: 1.25rem 0 0;
   text-align: center;
