@@ -14,6 +14,7 @@ function buildTestApp({ authService }: { authService: Partial<AuthRoutesOptions[
     creditApplicationService: {
       createCreditApplication: unexpectedCall,
       listCreditApplications: unexpectedCall,
+      updateCreditApplicationStatus: unexpectedCall,
     },
     authService: { registerUser: unexpectedCall, loginUser: unexpectedCall, ...authService },
   });

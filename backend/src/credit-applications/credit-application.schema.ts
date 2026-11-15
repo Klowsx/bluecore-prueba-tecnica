@@ -1,5 +1,27 @@
 import { CreditApplicationStatus } from '../../generated/prisma/enums.js';
 
+const decisionStatuses = [
+  CreditApplicationStatus.APPROVED,
+  CreditApplicationStatus.REJECTED,
+] as const;
+
+export type UpdateCreditApplicationStatus = {
+  status: (typeof decisionStatuses)[number];
+  comment: string;
+};
+
+export const updateCreditApplicationStatusSchema = {
+  body: {
+    type: 'object',
+    required: ['status', 'comment'],
+    additionalProperties: false,
+    properties: {
+      status: { type: 'string', enum: decisionStatuses },
+      comment: { type: 'string', pattern: '\\S' },
+    },
+  },
+};
+
 export type ListCreditApplicationsQuery = {
   status?: CreditApplicationStatus;
 };

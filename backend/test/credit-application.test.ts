@@ -142,3 +142,67 @@ test('lista solicitudes y permite filtrar por estado con un JWT válido', async 
   const rows = all.json<{ idNumber: string }[]>();
   assert.equal(rows.filter((row) => row.idNumber === idNumber).length, statuses.length);
 });
+
+test('actualiza el estado y el motivo de una solicitud autenticada', async (t) => {
+  assert.ok(process.env.TEST_DATABASE_URL, 'Configura TEST_DATABASE_URL con una base migrada.');
+  process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
+  const authService = await import('../src/auth/auth.service.js');
+  const creditApplicationService =
+    await import('../src/credit-applications/credit-application.service.js');
+  const { prisma } = await import('../src/prisma.js');
+  const app = buildApp({ authService, creditApplicationService, jwtSecret: 'clave-para-pruebas' });
+  const idNumber = randomUUID();
+  t.after(async () => {
+    try {
+      await prisma.creditApplication.deleteMany({ where: { idNumber } });
+    } finally {
+      await app.close();
+      await prisma.$disconnect();
+    }
+  });
+  await app.ready();
+  const headers = { authorization: `Bearer ${app.jwt.sign({ sub: 'usuario-prueba' })}` };
+  const { id } = await prisma.creditApplication.create({
+    data: { idNumber, amount: 1000, paymentTermMonths: 12 },
+  });
+  const url = `/credit-applications/${id}/status`;
+  const payload = { status: 'APPROVED', comment: 'Documentación completa.' };
+  assert.equal((await app.inject({ method: 'PATCH', url, payload })).statusCode, 401);
+  for (const invalid of [
+    { ...payload, status: 'PENDING' },
+    { status: 'APPROVED' },
+    { comment: 'Motivo' },
+    { ...payload, comment: '  ' },
+    { ...payload, comment: 123 },
+    { ...payload, amount: 500 },
+  ]) {
+    const response = await app.inject({ method: 'PATCH', url, headers, payload: invalid });
+    assert.equal(response.statusCode, 400);
+  }
+  const original = await prisma.creditApplication.findUniqueOrThrow({ where: { id } });
+  assert.equal(original.status, 'PENDING');
+  assert.equal(original.comment, null);
+
+  const missing = await app.inject({
+    method: 'PATCH',
+    url: `/credit-applications/${randomUUID()}/status`,
+    headers,
+    payload,
+  });
+  assert.equal(missing.statusCode, 404);
+  assert.equal(missing.json().error.code, 'APPLICATION_NOT_FOUND');
+
+  for (const decision of [payload, { status: 'REJECTED', comment: 'Ingresos insuficientes.' }]) {
+    const response = await app.inject({
+      method: 'PATCH',
+      url,
+      headers,
+      payload: { ...decision, comment: `  ${decision.comment}  ` },
+    });
+    assert.equal(response.statusCode, 200);
+    const saved = await prisma.creditApplication.findUniqueOrThrow({ where: { id } });
+    assert.equal(saved.status, decision.status);
+    assert.equal(saved.comment, decision.comment);
+    assert.deepEqual(response.json(), JSON.parse(JSON.stringify(saved)));
+  }
+});
