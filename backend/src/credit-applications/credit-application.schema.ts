@@ -1,3 +1,19 @@
+import { CreditApplicationStatus } from '../../generated/prisma/enums.js';
+
+export type ListCreditApplicationsQuery = {
+  status?: CreditApplicationStatus;
+};
+
+export const listCreditApplicationsSchema = {
+  querystring: {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      status: { type: 'string', enum: Object.values(CreditApplicationStatus) },
+    },
+  },
+};
+
 export type CreateCreditApplication = {
   amount: number;
   paymentTermMonths: number;

@@ -11,7 +11,10 @@ function buildTestApp({ authService }: { authService: Partial<AuthRoutesOptions[
   };
   return buildApp({
     jwtSecret: 'clave-para-pruebas',
-    creditApplicationService: { createCreditApplication: unexpectedCall },
+    creditApplicationService: {
+      createCreditApplication: unexpectedCall,
+      listCreditApplications: unexpectedCall,
+    },
     authService: { registerUser: unexpectedCall, loginUser: unexpectedCall, ...authService },
   });
 }

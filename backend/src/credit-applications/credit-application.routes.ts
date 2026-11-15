@@ -3,7 +3,9 @@ import { requireAuth } from '../auth/require-auth.js';
 import { AppError } from '../errors.js';
 import {
   createCreditApplicationSchema,
+  listCreditApplicationsSchema,
   type CreateCreditApplication,
+  type ListCreditApplicationsQuery,
 } from './credit-application.schema.js';
 import type * as creditApplicationService from './credit-application.service.js';
 
@@ -15,6 +17,21 @@ export async function creditApplicationRoutes(
   app: FastifyInstance,
   { creditApplicationService }: CreditApplicationRoutesOptions,
 ): Promise<void> {
+  app.get<{ Querystring: ListCreditApplicationsQuery }>(
+    '/',
+    { onRequest: requireAuth, schema: listCreditApplicationsSchema, attachValidation: true },
+    async (request) => {
+      if (request.validationError) {
+        throw new AppError(
+          400,
+          'INVALID_REQUEST',
+          'El único filtro permitido es status y debe ser PENDING, APPROVED o REJECTED.',
+        );
+      }
+      return creditApplicationService.listCreditApplications(request.query.status);
+    },
+  );
+
   app.post<{ Body: CreateCreditApplication }>(
     '/',
     {
